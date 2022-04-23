@@ -1,24 +1,23 @@
-from mongoengine import connect as mongo_connect
+from mongoengine import connect
 from decouple import config
 import logging
 
 
-def connect():
-    """Acquire connection to MongoDB"""
+class Database:
 
-    host = config("DB_HOST", cast=str)
-    db = config("DB_NAME", cast=str)
-    user = config("DB_USER", cast=str)
-    secret = config("DB_PSWD", cast=str)
+    _HOST = config("DB_HOST", cast=str)
+    _DB = config("DB_NAME", cast=str)
+    _USER = config("DB_USER", cast=str)
+    _SECRET = config("DB_PSWD", cast=str)
 
-    try:
-        mongo_connect(
-            host=f"mongodb+srv://{user}:{secret}@{host}/{db}?retryWrites=true&w=majority"
-        )
-        logging.info("Connected to MongoDB")
-    except Exception as err:
-        logging.error(err, exc_info=True)
-        return None
+    @staticmethod
+    def initialize():
+        """Connect to MongoDB database."""
 
-
-    
+        try:
+            connect(
+                host=f"mongodb+srv://{Database._USER}:{Database._SECRET}@{Database._HOST}/{Database._DB}?retryWrites=true&w=majority"
+            )
+            logging.info("Connected to MongoDB")
+        except Exception as err:
+            logging.error(err, exc_info=True)
