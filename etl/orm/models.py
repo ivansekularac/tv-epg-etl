@@ -12,6 +12,7 @@ from mongoengine import (
 class Channel(Document):
 
     channel_id = IntField(required=True, unique=True)
+    original_id = IntField()
     name = StringField(required=True)
     logo = StringField()
     category = ListField(field=StringField())
@@ -25,8 +26,10 @@ class Show(Document):
     title = StringField(required=True)
     category = StringField()
     description = StringField()
-    start = DateTimeField()
-    end = DateTimeField()
+    start_dt = DateTimeField()
+    end_dt = DateTimeField()
+    start_ts = IntField()
+    end_ts = IntField()
     duration = FloatField()
     poster = StringField()
     channel_id = ReferenceField(Channel)

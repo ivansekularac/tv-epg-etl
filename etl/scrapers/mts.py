@@ -59,7 +59,7 @@ class MtsScraper:
             logging.error(err, exc_info=True)
             return None
 
-    def get_program(
+    def get_shows(
         self,
         category_id: Optional[str] = None,
         category_name: Optional[str] = None,
@@ -110,7 +110,7 @@ class MtsScraper:
                         self.parser.parse_channel(channel, category["text"])
                     )
 
-        logging.info(f"{len(channels)} channels prepared for database.")
+        logging.info(f"{ len(channels) } channels prepared for database.")
 
         return channels
 
@@ -125,7 +125,7 @@ class MtsScraper:
         shows = []
 
         for date in dates:
-            data = self.get_program(date=date["value"])
+            data = self.get_shows(date=date["value"])
 
             for el in data:
                 shows.extend([self.parser.parse_show(item) for item in el["items"]])
