@@ -157,6 +157,17 @@ class SkScraper:
             logging.info(f"{len(shows)} shows prepared for database.")
             return shows
         except Exception as err:
-            print(err)
             logging.error(err, exc_info=True)
             return None
+
+    def scrape(self) -> dict[list]:
+        """Scrape SK API and prepare data for saving to database
+
+        Returns:
+            dict[list]: Dictionary with lists of channels and shows
+        """
+        channels = self.prepare_channels()
+        shows = self.prepare_shows([channel.original_id for channel in channels])
+
+        logging.info(f"{len(channels)} channels and {len(shows)} shows scraped.")
+        return {"channels": channels, "shows": shows}

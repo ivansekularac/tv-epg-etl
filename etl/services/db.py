@@ -24,7 +24,7 @@ class Database:
             logging.error(err, exc_info=True)
 
     @staticmethod
-    def insert_many(collection, data) -> None:
+    def insert_all(collection, data) -> None:
         """Insert many documents into collection.
 
         Args:

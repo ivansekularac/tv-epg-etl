@@ -76,7 +76,7 @@ class MtsScraper:
             list[dict]: List of channels with program items as dicts
         """
         try:
-            params = {"category": category_id, "date": date}
+            params = {"channel-type": "tv", "category": category_id, "date": date}
             response = requests.get(
                 self.base_url + "/program", params=params, headers=self.headers
             )
@@ -100,7 +100,7 @@ class MtsScraper:
         channels = []
 
         for category in categories:
-            category_channels = self.get_program(
+            category_channels = self.get_shows(
                 category["id"], category["text"], dates[0]["value"]
             )
 
@@ -132,3 +132,15 @@ class MtsScraper:
 
         logging.info(f"{len(shows)} shows prepared for database.")
         return shows
+
+    def scrape(self) -> dict[list]:
+        """Scrape data from mts API.
+
+        Returns:
+            dict[list]: Dictionary with lists of channels and shows
+        """
+
+        channels = self.prepare_channels()
+        shows = self.prepare_shows()
+        logging.info(f"{len(channels)} channels and {len(shows)} shows scraped.")
+        return {"channels": channels, "shows": shows}

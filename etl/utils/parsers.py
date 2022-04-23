@@ -100,6 +100,24 @@ class SkParser:
     def __init__(self) -> None:
         self.image_base_url = "https://images-web.ug-be.cdn.united.cloud"
 
+    def get_image(self, images: list[dict]) -> str:
+        """Get image from list of images.
+        If there is no image, return default image.
+
+        Args:
+            images (list): List of images
+
+        Returns:
+            str: Image URL
+        """
+
+        if len(images) > 2:
+            return self.image_base_url + images[1]["path"]
+        elif len(images) > 1:
+            return self.image_base_url + images[0]["path"]
+
+        return "https://images.unsplash.com/photo-1593784991188-c899ca07263b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=640&q=50"
+
     def parse_channel(self, item) -> Channel:
         """Parsing channel item from API to
         :class:`etl.models.channel.Channel` object.
@@ -144,7 +162,7 @@ class SkParser:
             "start_ts": item["startTime"] / 1000,
             "end_ts": item["endTime"] / 1000,
             "duration": float((item["startTime"] - item["endTime"]) / 1000 / 60),
-            "poster": self.image_base_url + item["images"][1]["path"],
+            "poster": self.get_image(item["images"]),
             "channel_id": int("1000" + channel_id),
         }
 
