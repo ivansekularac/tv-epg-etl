@@ -2,8 +2,7 @@ import logging
 from typing import Optional
 
 import requests
-from models.channel import Channel
-from models.show import Show
+from orm.models import Channel, Show
 from utils.parsers import MtsParser
 
 

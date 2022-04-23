@@ -1,11 +1,23 @@
-from mongoengine import Document
 from mongoengine import (
-    StringField,
     DateTimeField,
+    Document,
     FloatField,
+    IntField,
+    ListField,
     ReferenceField,
+    StringField,
 )
-from models.channel import Channel
+
+
+class Channel(Document):
+
+    channel_id = IntField(required=True, unique=True)
+    name = StringField(required=True)
+    logo = StringField()
+    category = ListField(field=StringField())
+
+    def __str__(self):
+        return self.name
 
 
 class Show(Document):

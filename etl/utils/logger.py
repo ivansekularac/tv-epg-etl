@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime
 
-class Logger:
 
+class Logger:
     @staticmethod
     def initialize():
         """Logger setup and initialization"""

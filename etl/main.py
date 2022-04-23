@@ -1,6 +1,11 @@
 from utils.logger import Logger
 from services.db import Database
 
-if __name__ == "__main__":
+
+def main():
     Logger.initialize()
     Database.initialize()
+
+
+if __name__ == "__main__":
+    main()
