@@ -1,5 +1,6 @@
 from mongoengine import connect as mongo_connect
 from decouple import config
+import logging
 
 
 def connect():
@@ -10,6 +11,14 @@ def connect():
     user = config("DB_USER", cast=str)
     secret = config("DB_PSWD", cast=str)
 
-    mongo_connect(
-        host=f"mongodb+srv://{user}:{secret}@{host}/{db}?retryWrites=true&w=majority"
-    )
+    try:
+        mongo_connect(
+            host=f"mongodb+srv://{user}:{secret}@{host}/{db}?retryWrites=true&w=majority"
+        )
+        logging.info("Connected to MongoDB")
+    except Exception as err:
+        logging.error(err, exc_info=True)
+        return None
+
+
+    

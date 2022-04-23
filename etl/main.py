@@ -1,2 +1,5 @@
+from utils import logger
+
 if __name__ == "__main__":
-    pass
+    logger.initialize()
+    

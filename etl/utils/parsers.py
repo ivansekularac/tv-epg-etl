@@ -1,8 +1,9 @@
+import logging
 from datetime import datetime
-from pytz import timezone
-from models.channel import Channel
 
+from models.channel import Channel
 from models.show import Show
+from pytz import timezone
 
 
 class MtsParser:
@@ -58,6 +59,7 @@ class MtsParser:
         Returns:
             Show: Parsed Show object
         """
+
         args = {
             "title": item["title"],
             "category": item["category"],
@@ -66,7 +68,7 @@ class MtsParser:
             "end": self.parse_datetime(item["full_end"]),
             "duration": float(item["duration"]),
             "poster": item["image"],
-            "channel_id": int(item["id_channel"]),
+            "channel_id": int(item.get("id_channel", "0")),
         }
 
         return Show(**args)
@@ -91,4 +93,3 @@ class MtsParser:
         }
 
         return Channel(**args)
-
