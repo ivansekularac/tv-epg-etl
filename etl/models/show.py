@@ -19,3 +19,5 @@ class Show(Document):
     poster = StringField()
     channel_id = ReferenceField(Channel)
 
+    def __str__(self):
+        return self.title

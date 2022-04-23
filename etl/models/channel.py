@@ -1,5 +1,5 @@
 from mongoengine import Document
-from mongoengine import IntField, StringField
+from mongoengine import IntField, StringField, ListField
 
 
 class Channel(Document):
@@ -8,3 +8,7 @@ class Channel(Document):
     name = StringField(required=True)
     description = StringField()
     logo = StringField()
+    category = ListField(field=StringField())
+
+    def __str__(self):
+        return self.name
