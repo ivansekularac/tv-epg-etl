@@ -88,7 +88,7 @@ class MtsScraper:
             logging.error(err, exc_info=True)
             return None
 
-    def prepare_channels(self) -> list[Channel]:
+    def prepare_channels(self, shows: list[Show]) -> list[Channel]:
         """Prepare channels for saving to database.
 
         Returns:
@@ -106,15 +106,22 @@ class MtsScraper:
 
             if category_channels:
                 for channel in category_channels:
-                    channels.append(
-                        self.parser.parse_channel(channel, category["text"])
-                    )
+                    matching_shows = [
+                        show for show in shows if show.oid == int(channel["id"])
+                    ]
+
+                    if matching_shows:
+                        channels.append(
+                            self.parser.parse_channel(
+                                channel, category["text"], matching_shows
+                            )
+                        )
 
         logging.info(f"{ len(channels) } channels prepared for database.")
 
         return channels
 
-    def prepare_shows(self, channels: list[Channel]) -> list[Show]:
+    def prepare_shows(self) -> list[Show]:
         """Prepare shows for saving to database.
 
         Returns:
@@ -127,19 +134,9 @@ class MtsScraper:
         for date in dates:
             data = self.get_shows(date=date["value"])
 
-            for el in data:
-
-                for item in el["items"]:
-                    matching_channel = next(
-                        (
-                            channel
-                            for channel in channels
-                            if channel.oid == int(item.get("id_channel", 0))
-                        ),
-                        None,
-                    )
-                    show = self.parser.parse_show(item, matching_channel)
-                    shows.append(show)
+            for channel in data:
+                for show in channel["items"]:
+                    shows.append(self.parser.parse_show(show))
 
         logging.info(f"{len(shows)} shows prepared for database.")
         return shows
@@ -150,8 +147,9 @@ class MtsScraper:
         Returns:
             dict[list]: Dictionary with lists of channels and shows
         """
-
-        channels = self.prepare_channels()
-        shows = self.prepare_shows(channels)
-        logging.info(f"{len(channels)} channels and {len(shows)} shows scraped.")
-        return {"channels": channels, "shows": shows}
+        shows = self.prepare_shows()
+        channels = self.prepare_channels(shows)
+        logging.info(
+            f"{len(channels)} channels with {len(shows)} embedded shows scraped."
+        )
+        return channels

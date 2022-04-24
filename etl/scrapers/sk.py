@@ -88,11 +88,33 @@ class SkScraper:
             logging.error(err, exc_info=True)
             return None
 
-    def get_shows(self, channel_ids: list[int]) -> dict:
-        """Fetch all shows for all SK channels from SK API
+    def get_channel_ids(self) -> list[dict]:
+        """Fetch all channel IDs from SK API
 
-        Args:
-            channel_ids (list[int]): List of Channel IDs
+        Returns:
+            list[str]: List of channel IDs
+        """
+
+        if not self._bearer:
+            self.get_auth_token()
+
+        headers = {
+            "Accept": "application/json",
+            "Authorization": f"Bearer { self._bearer }",
+        }
+        params = {"imageSize": "S", "communityIdentifier": "sk_rs", "languageId": "404"}
+
+        try:
+            response = requests.get(
+                self.base_url + "/v2/public/channels", params=params, headers=headers
+            )
+            return [channel["id"] for channel in response.json()]
+        except Exception as err:
+            logging.error(err, exc_info=True)
+            return None
+
+    def get_shows(self) -> dict:
+        """Fetch all shows for all SK channels from SK API
 
         Returns:
             list[dict]: List of shows
@@ -100,13 +122,15 @@ class SkScraper:
         if not self._bearer:
             self.get_auth_token()
 
+        ids = self.get_channel_ids()
+
         headers = {
             "Accept": "application/json",
             "Authorization": f"Bearer { self._bearer }",
             "X-UCP-TIME-FORMAT": "timestamp",
         }
         params = {
-            "cid": ",".join([str(id) for id in channel_ids]),
+            "cid": ",".join([str(id) for id in ids]),
             "fromTime": int(pendulum.now().add(days=-7).start_of("day").timestamp()),
             "toTime": int(pendulum.now().add(days=5).end_of("day").timestamp()),
             "communityIdentifier": "sk_rs",
@@ -125,41 +149,39 @@ class SkScraper:
             logging.error(err, exc_info=True)
             return None
 
-    def prepare_channels(self) -> list[Channel]:
+    def prepare_channels(self, shows: list[Show]) -> list[Channel]:
         """Prepare channels for saving to database
 
         Returns:
-            list[Channel]: List of channel documents to be saved to database
+            list[Show]: List of show embedded documents
         """
         try:
-            channels = self.get_channels()
-            sk = [self.parser.parse_channel(channel) for channel in channels]
-            logging.info(f"{len(sk)} channels successfully parsed from SK API")
-            return sk
+            channels_data = self.get_channels()
+            channels = []
+
+            for channel in channels_data:
+                matching_shows = [show for show in shows if show.oid == channel["id"]]
+                channels.append(self.parser.parse_channel(channel, matching_shows))
+
+            logging.info(f"{len(channels)} channels successfully parsed from SK API")
+            return channels
         except Exception as err:
             logging.error(err, exc_info=True)
             return None
 
-    def prepare_shows(self, channels: list[Channel]) -> list[Show]:
+    def prepare_shows(self) -> list[Show]:
         """Prepare shows for saving to database.
 
         Returns:
             list[Show]: List of shows as model objects
         """
         try:
-            data = self.get_shows([channel.oid for channel in channels])
+            data = self.get_shows()
             shows = []
 
-            for id, events in data.items():
-
-                for event in events:
-                    # Find matching channel in list of channels
-                    matching_channel = next(
-                        (channel for channel in channels if channel.oid == int(id)),
-                        None,
-                    )
-                    show = self.parser.parse_show(event, matching_channel)
-                    shows.append(show)
+            for _, items in data.items():
+                for item in items:
+                    shows.append(self.parser.parse_show(item))
 
             logging.info(f"{len(shows)} shows prepared for database.")
             return shows
@@ -173,8 +195,10 @@ class SkScraper:
         Returns:
             dict[list]: Dictionary with lists of channels and shows
         """
-        channels = self.prepare_channels()
-        shows = self.prepare_shows(channels)
+        shows = self.prepare_shows()
+        channels = self.prepare_channels(shows)
 
-        logging.info(f"{len(channels)} channels and {len(shows)} shows scraped.")
-        return {"channels": channels, "shows": shows}
+        logging.info(
+            f"{len(channels)} channels with {len(shows)} embedded shows scraped."
+        )
+        return channels

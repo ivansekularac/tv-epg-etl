@@ -23,27 +23,22 @@ def main():
     print("Scrapers initialized")
     print("Working...")
     # Scrape data
-    mts_data = mts.scrape()
-    sk_data = sk.scrape()
+    mts_channels = mts.scrape()
+    sk_channels = sk.scrape()
 
     print("Scraping completed...")
 
     # Concat datasets
-    channels = mts_data["channels"] + sk_data["channels"]
-    shows = mts_data["shows"] + sk_data["shows"]
+    channels = mts_channels + sk_channels
 
     # Clear the database
     Database.drop(Channel)
-    Database.drop(Show)
 
     print("Database cleared")
 
     # Save data to database
     Database.insert_all(Channel, channels)
     print(f"{ len(channels) } channels saved to database")
-
-    Database.insert_all(Show, shows)
-    print(f"{ len(shows) } shows saved to database")
 
     end = pendulum.now()
     print(f"Finished at { end.now().to_datetime_string() }")

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from orm.models import Channel, Show
 import pendulum
@@ -52,18 +53,21 @@ class MtsParser:
         Returns:
             list: List of categories
         """
-        categories = [c.strip() for c in category_str.split("/")]
+        try:
+            categories = [c.strip() for c in category_str.split("/")]
 
-        if "Obrazovno" in categories:
-            categories.remove("Obrazovno")
-            categories.append("Obrazovni")
-        elif "Regionalni (Kolažni)" in categories:
-            categories.remove("Regionalni (Kolažni)")
-            categories.append("Regionalni")
+            if "Obrazovno" in categories:
+                categories.remove("Obrazovno")
+                categories.append("Obrazovni")
+            elif "Regionalni (Kolažni)" in categories:
+                categories.remove("Regionalni (Kolažni)")
+                categories.append("Regionalni")
 
-        return categories
+            return categories
+        except:
+            return []
 
-    def parse_show(self, item: dict, channel: Channel) -> Show:
+    def parse_show(self, item: dict) -> Show:
         """Parsing show item from API to
         :class:`etl.models.show.Show` object.
 
@@ -84,18 +88,19 @@ class MtsParser:
             "end_ts": self.parse_datetime(item["full_end"])[1],
             "duration": float(item["duration"]),
             "poster": self.get_image(item["image"]),
-            "channel": channel,
+            "oid": int(item.get("id_channel", 0)),
         }
 
         return Show(**args)
 
-    def parse_channel(self, item, category) -> Channel:
+    def parse_channel(self, item: dict, category: str, shows: list[Show]) -> Channel:
         """Parsing channel item from API to
         :class:`etl.models.channel.Channel` object.
 
         Args:
             item (dict): Channel item from API
             category (str): String of categories
+            shows: (list[Show]): List of shows for channel
 
         Returns:
             Channel: Parsed Channel object
@@ -105,6 +110,7 @@ class MtsParser:
             "name": item["name"].strip(),
             "logo": item["image"],
             "category": self.parse_categories(category),
+            "shows": shows,
         }
 
         return Channel(**args)
@@ -133,7 +139,7 @@ class SkParser:
 
         return self.default_image
 
-    def parse_channel(self, item) -> Channel:
+    def parse_channel(self, item: dict, shows: list[Show]) -> Channel:
         """Parsing channel item from API to
         :class:`etl.models.channel.Channel` object.
 
@@ -148,17 +154,17 @@ class SkParser:
             "name": item["shortName"].strip(),
             "logo": self.image_base_url + item["images"][0]["path"],
             "category": ["Sportski"],
+            "shows": shows,
         }
 
         return Channel(**args)
 
-    def parse_show(self, item: dict, channel: Channel) -> Show:
+    def parse_show(self, item: dict) -> Show:
         """Parsing show item from API to
         :class:`etl.models.show.Show` object.
 
         Args:
             item (dict): Show item from API
-            channel (Channel): Parsed channel object
 
         Returns:
             Show: Parsed Show object
@@ -177,7 +183,7 @@ class SkParser:
             "end_ts": item["endTime"] / 1000,
             "duration": float((item["endTime"] - item["startTime"]) / 1000 / 60),
             "poster": self.get_image(item["images"]),
-            "channel": channel,
+            "oid": item["channelId"],
         }
 
         return Show(**args)
