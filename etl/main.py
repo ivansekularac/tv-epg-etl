@@ -5,26 +5,27 @@ from scrapers.mts import MtsScraper
 from orm.models import Channel, Show
 import pendulum
 
+
 def main():
     start = pendulum.now()
     print(f"Started at { start.to_datetime_string() }")
-    
+
     # Initializers
     Logger.initialize()
     Database.initialize()
 
     print("Logger and Database initialized")
-    
+
     # Scrapers
     mts = MtsScraper()
     sk = SkScraper()
 
     print("Scrapers initialized")
-    print("Working...")    
+    print("Working...")
     # Scrape data
     mts_data = mts.scrape()
     sk_data = sk.scrape()
-    
+
     print("Scraping completed...")
 
     # Concat datasets
@@ -47,6 +48,7 @@ def main():
     end = pendulum.now()
     print(f"Finished at { end.now().to_datetime_string() }")
     print(f"Total time: { end.diff(start).in_seconds() } seconds")
+
 
 if __name__ == "__main__":
     main()

@@ -140,19 +140,26 @@ class SkScraper:
             logging.error(err, exc_info=True)
             return None
 
-    def prepare_shows(self, channel_ids: list[int]) -> list[Show]:
+    def prepare_shows(self, channels: list[Channel]) -> list[Show]:
         """Prepare shows for saving to database.
 
         Returns:
             list[Show]: List of shows as model objects
         """
         try:
-            data = self.get_shows(channel_ids)
+            data = self.get_shows([channel.oid for channel in channels])
             shows = []
 
             for id, events in data.items():
+
                 for event in events:
-                    shows.append(self.parser.parse_show(id, event))
+                    # Find matching channel in list of channels
+                    matching_channel = next(
+                        (channel for channel in channels if channel.oid == int(id)),
+                        None,
+                    )
+                    show = self.parser.parse_show(event, matching_channel)
+                    shows.append(show)
 
             logging.info(f"{len(shows)} shows prepared for database.")
             return shows
@@ -167,7 +174,7 @@ class SkScraper:
             dict[list]: Dictionary with lists of channels and shows
         """
         channels = self.prepare_channels()
-        shows = self.prepare_shows([channel.original_id for channel in channels])
+        shows = self.prepare_shows(channels)
 
         logging.info(f"{len(channels)} channels and {len(shows)} shows scraped.")
         return {"channels": channels, "shows": shows}

@@ -114,7 +114,7 @@ class MtsScraper:
 
         return channels
 
-    def prepare_shows(self) -> list[Show]:
+    def prepare_shows(self, channels: list[Channel]) -> list[Show]:
         """Prepare shows for saving to database.
 
         Returns:
@@ -128,7 +128,18 @@ class MtsScraper:
             data = self.get_shows(date=date["value"])
 
             for el in data:
-                shows.extend([self.parser.parse_show(item) for item in el["items"]])
+
+                for item in el["items"]:
+                    matching_channel = next(
+                        (
+                            channel
+                            for channel in channels
+                            if channel.oid == int(item.get("id_channel", 0))
+                        ),
+                        None,
+                    )
+                    show = self.parser.parse_show(item, matching_channel)
+                    shows.append(show)
 
         logging.info(f"{len(shows)} shows prepared for database.")
         return shows
@@ -141,6 +152,6 @@ class MtsScraper:
         """
 
         channels = self.prepare_channels()
-        shows = self.prepare_shows()
+        shows = self.prepare_shows(channels)
         logging.info(f"{len(channels)} channels and {len(shows)} shows scraped.")
         return {"channels": channels, "shows": shows}

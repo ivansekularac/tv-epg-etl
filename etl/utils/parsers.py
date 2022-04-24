@@ -6,7 +6,22 @@ import pendulum
 
 class MtsParser:
     def __init__(self):
-        pass
+        self.default_image = "https://images.unsplash.com/photo-1593784991188-c899ca07263b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=640&q=50"
+
+    def get_image(self, url) -> str:
+        """If there is no image, return default image.
+
+        Args:
+            images (str): Url of image
+
+        Returns:
+            str: Image URL
+        """
+
+        if len(url) == 0:
+            return self.default_image
+
+        return url
 
     def parse_datetime(self, datetime_str) -> tuple:
         """Parse datetime string to datetime object with timezone.
@@ -48,7 +63,7 @@ class MtsParser:
 
         return categories
 
-    def parse_show(self, item) -> Show:
+    def parse_show(self, item: dict, channel: Channel) -> Show:
         """Parsing show item from API to
         :class:`etl.models.show.Show` object.
 
@@ -68,8 +83,8 @@ class MtsParser:
             "start_ts": self.parse_datetime(item["full_start"])[1],
             "end_ts": self.parse_datetime(item["full_end"])[1],
             "duration": float(item["duration"]),
-            "poster": item["image"],
-            "channel_id": int(item.get("id_channel", "0")),
+            "poster": self.get_image(item["image"]),
+            "channel": channel,
         }
 
         return Show(**args)
@@ -86,8 +101,7 @@ class MtsParser:
             Channel: Parsed Channel object
         """
         args = {
-            "channel_id": int(item["id"]),
-            "original_id": int(item["id"]),
+            "oid": int(item["id"]),
             "name": item["name"].strip(),
             "logo": item["image"],
             "category": self.parse_categories(category),
@@ -99,6 +113,7 @@ class MtsParser:
 class SkParser:
     def __init__(self) -> None:
         self.image_base_url = "https://images-web.ug-be.cdn.united.cloud"
+        self.default_image = "https://images.unsplash.com/photo-1593784991188-c899ca07263b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=640&q=50"
 
     def get_image(self, images: list[dict]) -> str:
         """Get image from list of images.
@@ -116,7 +131,7 @@ class SkParser:
         elif len(images) > 1:
             return self.image_base_url + images[0]["path"]
 
-        return "https://images.unsplash.com/photo-1593784991188-c899ca07263b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=640&q=50"
+        return self.default_image
 
     def parse_channel(self, item) -> Channel:
         """Parsing channel item from API to
@@ -129,8 +144,7 @@ class SkParser:
             Channel: Parsed Channel object
         """
         args = {
-            "channel_id": int("1000" + str(item["id"])),
-            "original_id": item["id"],
+            "oid": item["id"],
             "name": item["shortName"].strip(),
             "logo": self.image_base_url + item["images"][0]["path"],
             "category": ["Sportski"],
@@ -138,13 +152,13 @@ class SkParser:
 
         return Channel(**args)
 
-    def parse_show(self, channel_id: str, item: dict) -> Show:
+    def parse_show(self, item: dict, channel: Channel) -> Show:
         """Parsing show item from API to
         :class:`etl.models.show.Show` object.
 
         Args:
-            channel_id (str): Channel ID
             item (dict): Show item from API
+            channel (Channel): Parsed channel object
 
         Returns:
             Show: Parsed Show object
@@ -161,9 +175,9 @@ class SkParser:
             ),
             "start_ts": item["startTime"] / 1000,
             "end_ts": item["endTime"] / 1000,
-            "duration": float((item["startTime"] - item["endTime"]) / 1000 / 60),
+            "duration": float((item["endTime"] - item["startTime"]) / 1000 / 60),
             "poster": self.get_image(item["images"]),
-            "channel_id": int("1000" + channel_id),
+            "channel": channel,
         }
 
         return Show(**args)
