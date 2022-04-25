@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import Optional
 
-from orm.models import Channel, Show
+from orm.models import Channel, Show, Date
 import pendulum
 
 
@@ -187,3 +186,23 @@ class SkParser:
         }
 
         return Show(**args)
+
+
+class DateParser:
+    @staticmethod
+    def parse(date: datetime) -> Date:
+        """Parsing datetime object to Date object.
+
+        Args:
+            date (datetime): Datetime object
+
+        Returns:
+            Date: Parsed Date object
+        """
+        args = {
+            "ltz": date,
+            "utc": date.in_tz("UTC"),
+            "timestamp": int(date.timestamp()),
+            "formatted": date.format("dddd, MMMM Do"),
+        }
+        return Date(**args)

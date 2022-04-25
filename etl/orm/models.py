@@ -9,6 +9,8 @@ from mongoengine import (
     StringField,
 )
 
+import pendulum
+
 
 class Show(EmbeddedDocument):
 
@@ -37,3 +39,14 @@ class Channel(Document):
 
     def __str__(self):
         return self.name
+
+
+class Date(Document):
+
+    ltz = DateTimeField()
+    utc = DateTimeField()
+    timestamp = IntField()
+    formatted = StringField()
+
+    def __str__(self):
+        return self.formatted
