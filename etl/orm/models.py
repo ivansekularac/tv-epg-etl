@@ -43,10 +43,11 @@ class Channel(Document):
 
 class Date(Document):
 
-    ltz = DateTimeField()
-    utc = DateTimeField()
+    date_tz = DateTimeField()
     timestamp = IntField()
-    formatted = StringField()
+    weekday = StringField()
+    month = StringField()
+    day = IntField()
 
     def __str__(self):
         return self.formatted

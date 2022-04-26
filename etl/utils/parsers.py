@@ -200,9 +200,10 @@ class DateParser:
             Date: Parsed Date object
         """
         args = {
-            "ltz": date,
-            "utc": date.in_tz("UTC"),
+            "date_tz": date,
             "timestamp": int(date.timestamp()),
-            "formatted": date.format("dddd, MMMM Do"),
+            "weekday": date.format("dddd"),
+            "month": date.format("MMMM"),
+            "day": int(date.format("D")),
         }
         return Date(**args)
