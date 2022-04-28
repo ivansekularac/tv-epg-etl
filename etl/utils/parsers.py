@@ -115,7 +115,7 @@ class MtsParser:
         return Channel(**args)
 
 
-class SkParser:
+class ParserSBB:
     def __init__(self) -> None:
         self.image_base_url = "https://images-web.ug-be.cdn.united.cloud"
         self.default_image = "https://images.unsplash.com/photo-1593784991188-c899ca07263b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=640&q=50"
@@ -148,11 +148,18 @@ class SkParser:
         Returns:
             Channel: Parsed Channel object
         """
+        # Handle categories for SK and N1 & Nova channels
+        category = (
+            ["Sportski"]
+            if "SK" in item["name"]
+            else ["Informativni", "Lokalni", "Regionalni"]
+        )
+
         args = {
             "oid": item["id"],
-            "name": item["shortName"].strip(),
+            "name": item["name"].strip(),
             "logo": self.image_base_url + item["images"][0]["path"],
-            "category": ["Sportski"],
+            "category": category,
             "shows": shows,
         }
 

@@ -2,7 +2,7 @@ import pendulum
 
 from orm.models import Channel, Date
 from scrapers.mts import MtsScraper
-from scrapers.sk import SkScraper
+from scrapers.sbb import SBB
 from services.db import Database
 from utils import helpers
 from utils.logger import Logger
@@ -21,18 +21,17 @@ def main():
 
     # Scrapers
     mts = MtsScraper()
-    sk = SkScraper()
-
+    sbb = SBB()
     print("Scrapers initialized")
     print("Working...")
     # Scrape data
     mts_channels = mts.scrape()
-    sk_channels = sk.scrape()
+    sbb_channels = sbb.scrape()
 
     print("Scraping completed...")
 
     # Concat datasets
-    channels = mts_channels + sk_channels
+    channels = mts_channels + sbb_channels
 
     # Prepare dates data
     start_dt, end_dt = helpers.min_max_date(channels[:20])
