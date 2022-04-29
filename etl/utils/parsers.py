@@ -52,14 +52,14 @@ class ParserMTS:
             list: List of categories
         """
         try:
-            categories = [c.strip() for c in category_str.split("/")]
+            categories = [c.strip().lower() for c in category_str.split("/")]
 
-            if "Obrazovno" in categories:
-                categories.remove("Obrazovno")
-                categories.append("Obrazovni")
-            elif "Regionalni (Kolažni)" in categories:
-                categories.remove("Regionalni (Kolažni)")
-                categories.append("Regionalni")
+            if "obrazovno" in categories:
+                categories.remove("obrazovno")
+                categories.append("obrazovni")
+            elif "regionalni (kolažni)" in categories:
+                categories.remove("regionalni (kolažni)")
+                categories.append("regionalni")
             return categories
         except:
             return []
@@ -148,9 +148,7 @@ class ParserSBB:
         """
         # Handle categories for SK and N1 & Nova channels
         category = (
-            ["Sportski"]
-            if "SK" in item["name"]
-            else ["Informativni", "Lokalni", "Regionalni"]
+            ["sportski"] if "SK" in item["name"] else ["informativni", "regionalni"]
         )
 
         args = {
