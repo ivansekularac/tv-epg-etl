@@ -36,7 +36,7 @@ class Channel(Document):
     shows = EmbeddedDocumentListField(Show)
 
     def __str__(self):
-        return f"{self.name} with ({len(self.shows)}) shows"
+        return f"{ self.name } / { ', '.join(self.category) } / ({ len(self.shows) }) shows"
 
 
 class Date(Document):
@@ -48,4 +48,4 @@ class Date(Document):
     day = IntField()
 
     def __str__(self):
-        return self.formatted
+        return self.date_tz

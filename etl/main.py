@@ -42,7 +42,7 @@ def main():
     Database.drop(Channel)
     Database.drop(Date)
 
-    print("Database cleared")
+    print("Database cleared\nWriting to database...")
 
     # Save data to database
     Database.insert_all(Channel, channels)

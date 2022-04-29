@@ -41,7 +41,7 @@ class ParserMTS:
 
         return (parsed, int(parsed.timestamp()))
 
-    def parse_categories(self, category_str) -> list[str]:
+    def parse_categories(self, category_str: str) -> list[str]:
         """Parsing categories string to list of categories.
         Handles potential cases of misspeled categories.
 
@@ -60,7 +60,6 @@ class ParserMTS:
             elif "Regionalni (Kolažni)" in categories:
                 categories.remove("Regionalni (Kolažni)")
                 categories.append("Regionalni")
-
             return categories
         except:
             return []
