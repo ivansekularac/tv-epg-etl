@@ -1,13 +1,12 @@
 from datetime import datetime
 
-from orm.models import Channel, Show, Date
 import pendulum
+from orm.models import Channel, Date, Show
+
+from utils import constants
 
 
-class MtsParser:
-    def __init__(self):
-        self.default_image = "https://images.unsplash.com/photo-1593784991188-c899ca07263b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=640&q=50"
-
+class ParserMTS:
     def get_image(self, url) -> str:
         """If there is no image, return default image.
 
@@ -19,7 +18,7 @@ class MtsParser:
         """
 
         if len(url) == 0:
-            return self.default_image
+            return constants.DEFAULT_IMG
 
         return url
 
@@ -68,7 +67,7 @@ class MtsParser:
 
     def parse_show(self, item: dict) -> Show:
         """Parsing show item from API to
-        :class:`etl.models.show.Show` object.
+        :class:`etl.orm.models.Show` object.
 
         Args:
             item (dict): Show item from API
@@ -92,13 +91,12 @@ class MtsParser:
 
         return Show(**args)
 
-    def parse_channel(self, item: dict, category: str, shows: list[Show]) -> Channel:
+    def parse_channel(self, item: dict, shows: list[Show]) -> Channel:
         """Parsing channel item from API to
-        :class:`etl.models.channel.Channel` object.
+        :class:`etl.orm.models.Channel` object.
 
         Args:
             item (dict): Channel item from API
-            category (str): String of categories
             shows: (list[Show]): List of shows for channel
 
         Returns:
@@ -108,7 +106,7 @@ class MtsParser:
             "oid": int(item["id"]),
             "name": item["name"].strip(),
             "logo": item["image"],
-            "category": self.parse_categories(category),
+            "category": self.parse_categories(item["category"]),
             "shows": shows,
         }
 
@@ -116,9 +114,10 @@ class MtsParser:
 
 
 class ParserSBB:
+    """Class for parsing response objects from SBB API to ORM instances"""
+
     def __init__(self) -> None:
         self.image_base_url = "https://images-web.ug-be.cdn.united.cloud"
-        self.default_image = "https://images.unsplash.com/photo-1593784991188-c899ca07263b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=640&q=50"
 
     def get_image(self, images: list[dict]) -> str:
         """Get image from list of images.
@@ -136,7 +135,7 @@ class ParserSBB:
         elif len(images) > 1:
             return self.image_base_url + images[0]["path"]
 
-        return self.default_image
+        return constants.DEFAULT_IMG
 
     def parse_channel(self, item: dict, shows: list[Show]) -> Channel:
         """Parsing channel item from API to

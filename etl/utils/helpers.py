@@ -1,6 +1,7 @@
 import datetime
-import pendulum
 import logging
+
+import pendulum
 from orm.models import Channel
 
 
@@ -19,7 +20,7 @@ def daterange(start_date: datetime, end_date: datetime) -> list:
 
     for n in range(int((end_date - start_date).days)):
         date = start_date + pendulum.duration(days=n)
-        dates.append(date.start_of('day'))
+        dates.append(date.start_of("day"))
     logging.info(f"{len(dates)} dates generated")
     return dates
 

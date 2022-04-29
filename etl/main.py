@@ -1,7 +1,7 @@
 import pendulum
 
 from orm.models import Channel, Date
-from scrapers.mts import MtsScraper
+from scrapers.mts import MTS
 from scrapers.sbb import SBB
 from services.db import Database
 from utils import helpers
@@ -19,8 +19,8 @@ def main():
 
     print("Logger and Database initialized")
 
-    # Scrapers
-    mts = MtsScraper()
+    # Instantiate scrapers
+    mts = MTS()
     sbb = SBB()
     print("Scrapers initialized")
     print("Working...")

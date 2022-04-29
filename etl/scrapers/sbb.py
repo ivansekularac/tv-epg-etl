@@ -1,9 +1,10 @@
 import logging
-from decouple import config
-import requests
+
 import pendulum
-from utils.parsers import ParserSBB
+import requests
+from decouple import config
 from orm.models import Channel, Show
+from utils.parsers import ParserSBB
 
 
 class SBB:

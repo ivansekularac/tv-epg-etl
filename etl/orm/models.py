@@ -9,8 +9,6 @@ from mongoengine import (
     StringField,
 )
 
-import pendulum
-
 
 class Show(EmbeddedDocument):
 
@@ -26,7 +24,7 @@ class Show(EmbeddedDocument):
     oid = IntField()
 
     def __str__(self):
-        return self.title
+        return f"{self.title} @ ({self.start_dt})"
 
 
 class Channel(Document):
