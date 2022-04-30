@@ -173,7 +173,7 @@ class ParserSBB:
         """
         args = {
             "title": item["title"],
-            "category": "Sport",
+            "category": "Sport" if "SK" in item["title"] else "",
             "description": item["shortDescription"],
             "start_dt": pendulum.from_timestamp(
                 item["startTime"] / 1000, tz="Europe/Belgrade"
