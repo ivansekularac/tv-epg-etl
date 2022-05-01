@@ -83,11 +83,9 @@ class SBB:
             for _, s in response.items():
                 shows.extend(s)
 
-            logging.info(
-                f"{ len(shows) } shows for { community } successfully fetched from API"
-            )
             return shows
-        except:
+        except Exception as err:
+            logging.error(err, exc_info=True)
             return []
 
     def fetch_data(self) -> dict[list]:
