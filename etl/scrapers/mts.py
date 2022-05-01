@@ -109,11 +109,13 @@ class MTS:
                 for item in response.json().get("channels", []):
                     shows.extend(item["items"])
 
-            logging.info(f"{ len(shows) } shows fetched from mts API")
         except Exception as err:
             logging.error(err, exc_info=True)
             return None
 
+        logging.info(
+            f"{ len(channels) } channels with total { len(shows) } shows fetched from MTS API"
+        )
         return {"channels": channels, "shows": shows}
 
     def parse_shows(self, data: list[dict]) -> list[Show]:
@@ -147,9 +149,10 @@ class MTS:
         for item in data:
             matching_shows = [show for show in shows if show.oid == int(item["id"])]
             parsed.append(self.parser.parse_channel(item, matching_shows))
-            logging.info(
-                f"{item['name']} channel successfully parsed with { len(matching_shows) } shows"
-            )
+
+        logging.info(
+            f"{ len(parsed) } channels parsed from mts API with total of { len(shows) } shows"
+        )
         return parsed
 
     def scrape(self) -> list[Channel]:

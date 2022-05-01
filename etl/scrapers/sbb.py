@@ -121,9 +121,7 @@ class SBB:
                     params=params,
                     headers=headers,
                 )
-                logging.info(
-                    f"{ len(response.json())} channels for {identifier[0]} successfully fetched from API"
-                )
+
                 channels.extend(response.json())
 
                 # Fetch shows for these channels
@@ -133,6 +131,9 @@ class SBB:
             except Exception as err:
                 logging.error(err, exc_info=True)
 
+        logging.info(
+            f"{ len(channels) } channels with total { len(shows) } shows fetched from SBB API"
+        )
         return {"channels": channels, "shows": shows}
 
     def parse_shows(self, data: list[dict]) -> list[Show]:
@@ -166,9 +167,10 @@ class SBB:
         for item in data:
             matching_shows = [show for show in shows if show.oid == item["id"]]
             parsed.append(self.parser.parse_channel(item, matching_shows))
-            logging.info(
-                f"{item['name']} channel successfully parsed with { len(matching_shows) } shows"
-            )
+
+        logging.info(
+            f"{ len(parsed) } channels successfully parsed from SBB API with total of { len(shows) } shows"
+        )
         return parsed
 
     def scrape(self) -> list[Channel]:

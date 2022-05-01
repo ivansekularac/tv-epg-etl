@@ -1,3 +1,5 @@
+import logging
+
 import pendulum
 
 from orm.models import Channel, Date
@@ -18,17 +20,20 @@ def main():
     Database.initialize()
 
     print("Logger and Database initialized")
+    logging.info(f"Started at { start.to_datetime_string() }")
 
     # Instantiate scrapers
     mts = MTS()
     sbb = SBB()
     print("Scrapers initialized")
+    logging.info("Scrapers initialized")
     print("Working...")
     # Scrape data
     mts_channels = mts.scrape()
     sbb_channels = sbb.scrape()
 
     print("Scraping completed...")
+    logging.info("Scraping completed...")
 
     # Concat datasets
     channels = mts_channels + sbb_channels
@@ -55,6 +60,9 @@ def main():
     print(f"Finished at { end.now().to_datetime_string() }")
     print(f"Total time: { end.diff(start).in_seconds() } seconds")
 
+    logging.info(
+        f"Finished at { end.now().to_datetime_string() } (Runtime: { end.diff(start).in_seconds() } seconds)"
+    )
 
 if __name__ == "__main__":
     main()

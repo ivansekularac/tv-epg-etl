@@ -34,7 +34,7 @@ class Database:
 
         try:
             collection.objects.insert(data)
-            logging.info(f"Inserted { len(data) } documents into {collection}")
+            logging.info(f"Inserted { len(data) } documents into { collection }")
         except Exception as err:
             logging.error(err, exc_info=True)
 
